@@ -16,15 +16,15 @@ namespace GameCore.Specs
         }
         
         [When(@"I take 0 damage")]
-        public void WhenITakeDamage(int p0)
+        public void WhenITakeDamage()
         {
             _player.Hit(0);
         }
         
         [Then(@"My health should now be 100")]
-        public void ThenMyHealthShouldNowBe(int p0)
+        public void ThenMyHealthShouldNowBe()
         {
-            Assert.Equals(100, _player.Health);
+            Assert.AreEqual(100, _player.Health);
         }
     }
 }
