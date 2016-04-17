@@ -1,6 +1,7 @@
 ﻿using System;
 using TechTalk.SpecFlow;
 using NUnit.Framework;
+using System.Linq;
 
 namespace GameCore.Specs
 {
@@ -15,40 +16,46 @@ namespace GameCore.Specs
             _player = new PlayerCharacter();
         }
         
-        [When(@"I take 0 damage")]
-        public void WhenITakeDamage()
+        [When("I take (.*) damage")]
+        public void WhenITakeDamage(int damage)
         {
-            _player.Hit(0);
+            _player.Hit(damage);
         }
         
-        [Then(@"My health should now be 100")]
-        public void ThenMyHealthShouldNowBe100()
+        [Then(@"My health should now be (.*)")]
+        public void ThenMyHealthShouldNowBe(int expectedHealth)
         {
-            Assert.AreEqual(100, _player.Health);
+            Assert.AreEqual(expectedHealth, _player.Health);
         }
-
-        [When(@"I take 40 damage")]
-        public void WhenITake40Damage()
-        {
-            _player.Hit(40);
-        }
-
-        [Then(@"My health should now be 60")]
-        public void ThenMyHealthShouldNowBe60()
-        {
-            Assert.AreEqual(60, _player.Health);
-        }
-
-        [When(@"I take 100 damage")]
-        public void WhenITake100Damage()
-        {
-            _player.Hit(100);
-        }
-
+        
         [Then(@"I should be dead")]
         public void ThenIShouldBeDead()
         {
             Assert.True(_player.IsDead);
         }
+
+        [Given(@"I have a damage resistance of (.*)")]
+        public void GivenIHaveADamageResistanceOf(int damageResistance)
+        {
+            _player.DamageResistance = damageResistance;
+   
+        }
+
+        [Given(@"I'm an Elf")]
+        public void GivenImAnElf()
+        {
+            _player.Race = "Elf";
+        }
+
+        [Given(@"I have the following attributes")]
+        public void GivenIHaveTheFollowingAttributes(Table table)
+        {
+            var race = table.Rows.First(row => row["attribute"] == "Race")["value"];
+            var resistance = table.Rows.First(row => row["attribute"] == "Resistance")["value"];
+
+            _player.Race = race;
+            _player.DamageResistance = int.Parse(resistance);
+        }
+
     }
 }
