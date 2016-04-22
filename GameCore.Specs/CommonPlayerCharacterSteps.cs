@@ -21,5 +21,6 @@ namespace GameCore.Specs
         {
             _context.Player = new PlayerCharacter();
         }
+
     }
 }
