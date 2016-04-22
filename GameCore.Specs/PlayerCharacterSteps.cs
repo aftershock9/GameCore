@@ -10,43 +10,42 @@ namespace GameCore.Specs
     [Binding]
     public class PlayerCharacterSteps
     {
-        private PlayerCharacter _player;
+        private readonly PlayerCharacterStepsContext _context;
 
-        [Given(@"I'm a new player")]
-        public void GivenImANewPlayer()
+        public PlayerCharacterSteps(PlayerCharacterStepsContext context)
         {
-            _player = new PlayerCharacter();
+            _context = context;
         }
-        
+
         [When("I take (.*) damage")]
         public void WhenITakeDamage(int damage)
         {
-            _player.Hit(damage);
+            _context.Player.Hit(damage);
         }
         
         [Then(@"My health should now be (.*)")]
         public void ThenMyHealthShouldNowBe(int expectedHealth)
         {
-            Assert.AreEqual(expectedHealth, _player.Health);
+            Assert.AreEqual(expectedHealth, _context.Player.Health);
         }
         
         [Then(@"I should be dead")]
         public void ThenIShouldBeDead()
         {
-            Assert.True(_player.IsDead);
+            Assert.True(_context.Player.IsDead);
         }
 
         [Given(@"I have a damage resistance of (.*)")]
         public void GivenIHaveADamageResistanceOf(int damageResistance)
         {
-            _player.DamageResistance = damageResistance;
+            _context.Player.DamageResistance = damageResistance;
    
         }
 
         [Given(@"I'm an Elf")]
         public void GivenImAnElf()
         {
-            _player.Race = "Elf";
+            _context.Player.Race = "Elf";
         }
 
         [Given(@"I have the following attributes")]
@@ -59,20 +58,20 @@ namespace GameCore.Specs
 
             dynamic attributes = table.CreateDynamicInstance();
 
-            _player.Race = attributes.Race;
-            _player.DamageResistance = attributes.Resistance;
+            _context.Player.Race = attributes.Race;
+            _context.Player.DamageResistance = attributes.Resistance;
         }
 
         [Given(@"My character class is set to (.*)")]
         public void GivenMyCharacterClassIsSetToHealer(CharacterClass characterClass)
         {
-            _player.CharacterClass = characterClass;
+            _context.Player.CharacterClass = characterClass;
         }
 
         [When(@"Cast a healing spell")]
         public void WhenCastAHealingSpell()
         {
-            _player.CastHealingSpell();
+            _context.Player.CastHealingSpell();
         }
 
         [Given(@"I have the following magical items")]
@@ -84,7 +83,7 @@ namespace GameCore.Specs
             //    var value = row["value"];
             //    var power = row["power"];
 
-            //    _player.MagicalItems.Add(new MagicalItem
+            //    _context.Player.MagicalItems.Add(new MagicalItem
             //    {
             //        Name = name,
             //        Value = int.Parse(value),
@@ -94,13 +93,13 @@ namespace GameCore.Specs
 
             //IEnumerable<MagicalItem> items = table.CreateSet<MagicalItem>();
 
-            //_player.MagicalItems.AddRange(items);
+            //_context.Player.MagicalItems.AddRange(items);
 
             IEnumerable<dynamic> items = table.CreateDynamicSet();
 
             foreach (var magicalItem in items)
             {
-                _player.MagicalItems.Add(new MagicalItem
+                _context.Player.MagicalItems.Add(new MagicalItem
                 {
                     Name = magicalItem.name,
                     Value = magicalItem.value,
@@ -112,7 +111,60 @@ namespace GameCore.Specs
         [Then(@"My total magical power should be (.*)")]
         public void ThenMyTotalMagicalPowerShouldBe(int expectedPower)
         {
-            Assert.AreEqual(expectedPower, _player.MagicalPower);
+            Assert.AreEqual(expectedPower, _context.Player.MagicalPower);
+        }
+
+        [Given(@"I last slept (.* days ago)")]
+        public void GivenILastSleptDaysAgo(DateTime lastSlept)
+        {
+            _context.Player.LastSleepTime = lastSlept;
+        }
+
+        [When(@"I read a restore health scroll")]
+        public void WhenIReadARestoreHealthScroll()
+        {
+            _context.Player.ReadHealthScroll();
+        }
+
+        [Given(@"I have the following weapons")]
+        public void GivenIHaveTheFollowingWeapons(IEnumerable<Weapon> weapons)
+        {
+            _context.Player.Weapons.AddRange(weapons);
+        }
+
+        [Then(@"My weapons should be worth (.*)")]
+        public void ThenMyWeaponsShouldBeWorth(int value)
+        {
+            Assert.AreEqual(value, _context.Player.WeaponsValue);
+        }
+
+        [Given(@"I have an amulet with a power of (.*)")]
+        public void GivenIHaveAnAmuletWithAPowerOf(int power)
+        {
+            _context.Player.MagicalItems.Add(new MagicalItem
+            {
+                Name = "Amulet",
+                Power = power
+            });
+
+            _context.StartingMagicalPower = power;
+        }
+
+        [When(@"I use a magical Amulet")]
+        public void WhenIUseAMagicalAmulet()
+        {
+            _context.Player.UseMagicalItem("Amulet");
+        }
+
+        [Then(@"The Amulet power should not be reduced")]
+        public void ThenTheAmuletPowerShouldNotBeReduced()
+        {
+            int expectedPower;
+
+            expectedPower = _context.StartingMagicalPower;
+
+            Assert.AreEqual(expectedPower, 
+                _context.Player.MagicalItems.First(item => item.Name == "Amulet").Power);
         }
 
     }
