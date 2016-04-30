@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TechTalk.SpecFlow;
+﻿using TechTalk.SpecFlow;
 
 namespace GameCore.Specs
 {
     [Binding]
-    public class Hooks
+    public class Hooks : Steps
     {
-        [BeforeScenario]
+        [BeforeScenario("elf")]
         public void BeforeScenario()
         {
 
@@ -19,7 +14,7 @@ namespace GameCore.Specs
         [AfterScenario]
         public void AfterScenario()
         {
-
+             
         }
     }
 }
